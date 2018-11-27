@@ -38,9 +38,9 @@ class RepairEngine:
         train_time = toc - tic
         return status, train_time
 
-    def infer_repairs(self):
+    def infer_repairs(self, infer_labeled):
         tic = time.clock()
-        X_pred, mask_pred, infer_idx = self.feat_dataset.get_infer_data()
+        X_pred, mask_pred, infer_idx = self.feat_dataset.get_infer_data(infer_labeled)
         Y_pred = self.repair_model.infer_values(X_pred, mask_pred)
         distr_df, infer_val_df = self.get_infer_dataframes(infer_idx, Y_pred)
         self.ds.generate_aux_table(AuxTables.cell_distr, distr_df, store=True, index_attrs=['_vid_'])
@@ -69,7 +69,7 @@ class RepairEngine:
 
     def get_featurizer_weights(self):
         tic = time.clock()
-        report = self.repair_model.get_featurizer_weights(self.feat_dataset.featurizer_info, self.feat_dataset.debugging)
+        status = self.repair_model.get_featurizer_weights(self.feat_dataset.featurizer_info, self.feat_dataset.debugging)
         toc = time.clock()
         report_time = toc - tic
         return status, report_time
