@@ -1,5 +1,9 @@
 import logging
 import os
+import random
+
+import torch
+import numpy as np
 
 from dataset import Dataset
 from dcparser import Parser
@@ -115,6 +119,11 @@ flags = [
          'help': 'print the weights of featurizers'})
 ]
 
+root_logger = logging.getLogger()
+gensim_logger = logging.getLogger('gensim')
+root_logger.setLevel(logging.INFO)
+gensim_logger.setLevel(logging.WARNING)
+
 
 class HoloClean:
     """
@@ -175,6 +184,18 @@ class Session:
         :param env: Holoclean environment
         :param name: Name for the Holoclean session
         """
+        # use DEBUG logging level if verbose enabled
+        if env['verbose']:
+            root_logger.setLevel(logging.DEBUG)
+            gensim_logger.setLevel(logging.DEBUG)
+
+        logging.debug('initiating session with parameters: %s', env)
+
+        # Initialize random seeds.
+        random.seed(env['seed'])
+        torch.manual_seed(env['seed'])
+        np.random.seed(seed=env['seed'])
+
         # Initialize members
         self.name = name
         self.env = env
@@ -185,14 +206,6 @@ class Session:
         self.repair_engine = RepairEngine(env, self.ds)
         self.eval_engine = EvalEngine(env, self.ds)
 
-        # use DEBUG logging level if verbose enabled
-        root_logger = logging.getLogger()
-        gensim_logger = logging.getLogger('gensim')
-        root_level, gensim_level = logging.INFO, logging.WARNING
-        if self.env['verbose']:
-            root_level, gensim_level = logging.DEBUG, logging.DEBUG
-        root_logger.setLevel(root_level)
-        gensim_logger.setLevel(gensim_level)
 
     def load_data(self, name, fpath, na_values=None,
             entity_col=None, src_col=None):

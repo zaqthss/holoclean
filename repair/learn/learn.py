@@ -36,12 +36,12 @@ class TiedLinear(torch.nn.Module):
             feat_size = feat_entry.size
             init_weight = feat_entry.init_weight
             self.in_features += feat_size
-            feat_weight = Parameter(init_weight*torch.ones(1,feat_size), requires_grad=learnable)
+            feat_weight = Parameter(init_weight*torch.ones(1, feat_size), requires_grad=learnable)
             if learnable:
                 self.reset_parameters(feat_weight)
             self.weight_list.append(feat_weight)
             if bias:
-                feat_bias = Parameter(torch.zeros(1,feat_size), requires_grad=learnable)
+                feat_bias = Parameter(torch.zeros(1, feat_size), requires_grad=learnable)
                 if learnable:
                     self.reset_parameters(feat_bias)
                 self.bias_list.append(feat_bias)
@@ -73,8 +73,7 @@ class RepairModel:
 
     def __init__(self, env, feat_info, output_dim, bias=False):
         self.env = env
-        torch.manual_seed(self.env['seed'])
-        # A list of tuples (is_featurizer_learnable, featurizer_output_size, init_weight)
+        # A list of tuples (name, is_featurizer_learnable, featurizer_output_size, init_weight, feature_names (list))
         self.feat_info = feat_info
         self.output_dim = output_dim
         self.model = TiedLinear(feat_info, output_dim, bias)
@@ -169,7 +168,7 @@ class RepairModel:
                 'weights': this_weight,
                 'size': feat_size
             }
-            
+
             # debugging
             train = debugging[feat_name]['weights']
             for dom_idx in range(train.shape[0]):

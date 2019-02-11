@@ -1,10 +1,11 @@
+import math
+
 import logging
 import pandas as pd
 import time
 from tqdm import tqdm
 import itertools
-import random
-import math
+import numpy as np
 
 from dataset import AuxTables, CellStatus
 
@@ -41,7 +42,6 @@ class DomainEngine:
         'cell_domain', 'pos_values').
         """
         tic = time.time()
-        random.seed(self.env['seed'])
         self.find_correlations()
         self.setup_attributes()
         domain = self.generate_domain()
@@ -144,7 +144,8 @@ class DomainEngine:
         result = self.ds.engine.execute_query(query)
         if not result:
             raise Exception("No attribute contains erroneous cells.")
-        return set(itertools.chain(*result))
+        # Sort the active attributes to maintain the order of the ids of random variable.
+        return sorted(itertools.chain(*result))
 
     def get_corr_attributes(self, attr, thres):
         """
@@ -198,8 +199,7 @@ class DomainEngine:
             tid = row['_tid_']
             app = []
             for attr in self.active_attributes:
-                init_value, dom = self.get_domain_cell(attr, row)
-                init_value_idx = dom.index(init_value)
+                init_value, init_value_idx, dom = self.get_domain_cell(attr, row)
                 weak_label, fixed = self.get_weak_label(attr, row, init_value, dom, 0.99)
                 weak_label_idx = dom.index(weak_label)
                 if len(dom) > 1:
@@ -211,14 +211,15 @@ class DomainEngine:
                     add_domain = self.get_random_domain(attr,init_value)
                     # Check if attribute has more than one unique values
                     if len(add_domain) > 0:
-                        dom.extend(self.get_random_domain(attr,init_value))
+                        dom.extend(add_domain)
                         cid = self.ds.get_cell_id(tid, attr)
                         app.append({"_tid_": tid, "attribute": attr, "_cid_": cid, "_vid_": vid, "domain": "|||".join(dom),
                                     "domain_size": len(dom),
                                     "init_value": init_value, "init_index": init_value_idx, "weak_label": init_value, "weak_label_idx": init_value_idx, "fixed": CellStatus.single_value.value})
                         vid += 1
             cells.extend(app)
-        domain_df = pd.DataFrame(data=cells)
+
+        domain_df = pd.DataFrame(data=cells).sort_values('_vid_')
         logging.info('DONE generating domain')
         return domain_df
 
@@ -244,57 +245,65 @@ class DomainEngine:
         :return: (initial value of entity-attribute, domain values for entity-attribute).
         """
 
-        domain = set([])
+        domain = set()
         correlated_attributes = self.get_corr_attributes(attr, self.cor_strength)
         # Iterate through all attributes correlated at least self.cor_strength ('cond_attr')
         # and take the top K co-occurrence values for 'attr' with the current
         # row's 'cond_attr' value.
         for cond_attr in correlated_attributes:
-            if cond_attr == attr or cond_attr == 'index' or cond_attr == '_tid_':
+            # Ignore correlations with index, tuple id or the same attribute.
+            if cond_attr == attr or cond_attr == '_tid_':
+                continue
+            if not self.pair_stats[cond_attr][attr]:
+                logging.warning("domain generation could not find pair_statistics between attributes: {}, {}".format(cond_attr, attr))
                 continue
             cond_val = row[cond_attr]
-            if not pd.isnull(cond_val):
-                if not self.pair_stats[cond_attr][attr]:
-                    break
-                s = self.pair_stats[cond_attr][attr]
-                try:
-                    candidates = s[cond_val]
-                    domain.update(candidates)
-                except KeyError as missing_val:
-                    if not pd.isnull(row[attr]):
-                        # error since co-occurrence must be at least 1 (since
-                        # the current row counts as one co-occurrence).
-                        logging.error('missing value: {}'.format(missing_val))
-                        raise
+            # Ignore correlations with null values.
+            if cond_val == '_nan_':
+                continue
+            s = self.pair_stats[cond_attr][attr]
+            try:
+                candidates = s[cond_val]
+                domain.update(candidates)
+            except KeyError as missing_val:
+                if row[attr] != '_nan_':
+                    # Error since co-occurrence must be at least 1 (since
+                    # the current row counts as one co-occurrence).
+                    logging.error('value missing from statistics: {}'.format(missing_val))
+                    raise
 
-        # Remove _nan_ if added due to correlated attributes
-        domain.discard('_nan_')
-        # Add initial value in domain
-        if pd.isnull(row[attr]):
-            domain.update(set(['_nan_']))
-            init_value = '_nan_'
-        else:
-            domain.update(set([row[attr]]))
-            init_value = row[attr]
-        return init_value, list(domain)
+        # Add the initial value to the domain.
+        init_value = row[attr]
+        domain.add(init_value)
+
+        # Remove _nan_ if added due to correlated attributes, only if it was not the initial value.
+        if init_value != '_nan_':
+            domain.discard('_nan_')
+
+        # Convert to ordered list to preserve order.
+        domain_lst = sorted(list(domain))
+
+        # Get the index of the initial value. This should never raise a ValueError since we made sure
+        # that 'init_value' was added.
+        init_value_idx = domain_lst.index(init_value)
+
+        return init_value, init_value_idx, domain_lst
 
     def get_random_domain(self, attr, cur_value):
         """
         get_random_domain returns a random sample of at most size
         'self.max_sample' of domain values for 'attr' that is NOT 'cur_value'.
         """
-
-        if random.random() > self.sampling_prob:
-            return []
         domain_pool = set(self.single_stats[attr].keys())
         domain_pool.discard(cur_value)
+        domain_pool = sorted(list(domain_pool))
         size = len(domain_pool)
         if size > 0:
             k = min(self.max_sample, size)
-            additional_values = random.sample(domain_pool, k)
+            additional_values = np.random.choice(domain_pool, size=k, replace=False)
         else:
             additional_values = []
-        return additional_values
+        return sorted(additional_values)
 
     def get_weak_label(self, attr, row, init_value, dom, thres=0.99, corr_strength=0.3):
         """
