@@ -81,6 +81,7 @@ class RepairModel:
 
     def fit_model(self, X_train, Y_train, mask_train):
         n_examples, n_classes, n_features = X_train.shape
+        logging.info('training with %d cells', n_examples)
         loss = torch.nn.CrossEntropyLoss()
         trainable_parameters = filter(lambda p: p.requires_grad, self.model.parameters())
         if self.env['optimizer'] == 'sgd':

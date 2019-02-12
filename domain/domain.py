@@ -223,6 +223,7 @@ class DomainEngine:
 
         domain_df = pd.DataFrame(data=cells).sort_values('_vid_')
         logging.info('DONE generating domain')
+        logging.info('%d weak labels labelled', int(domain_df[domain_df['fixed'] == CellStatus.weak_label.value].size))
         return domain_df
 
     def get_domain_cell(self, attr, row):
