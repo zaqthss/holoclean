@@ -30,6 +30,7 @@ class DomainEngine:
         self.total = None
         self.correlations = None
         self.cor_strength = cor_strength
+        self._cor_attrs = {}
         self.sampling_prob = sampling_prob
         self.max_sample = max_sample
         self.single_stats = {}
@@ -153,13 +154,14 @@ class DomainEngine:
         that are correlated with attr with magnitude at least self.cor_strength
         (init parameter).
         """
-        if attr not in self.correlations:
-            return []
+        if (attr,thres) not in self._cor_attrs:
+            self._cor_attrs[(attr,thres)] = []
 
-        d_temp = self.correlations[attr]
-        d_temp = d_temp.abs()
-        cor_attrs = [rec[0] for rec in d_temp[d_temp > thres].iteritems() if rec[0] != attr]
-        return cor_attrs
+            if attr in self.correlations:
+                d_temp = self.correlations[attr]
+                d_temp = d_temp.abs()
+                self._cor_attrs[(attr,thres)] = [rec[0] for rec in d_temp[d_temp > thres].iteritems() if rec[0] != attr]
+        return self._cor_attrs[(attr,thres)]
 
     def generate_domain(self):
         """
