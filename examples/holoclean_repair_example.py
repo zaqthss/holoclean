@@ -1,11 +1,6 @@
 import holoclean
 from detect import NullDetector, ViolationDetector
-from repair.featurize import InitAttFeaturizer
-from repair.featurize import InitSimFeaturizer
-from repair.featurize import FreqFeaturizer
-from repair.featurize import OccurFeaturizer
-from repair.featurize import ConstraintFeat
-from repair.featurize import LangModelFeat
+from repair.featurize import *
 
 
 # 1. Setup a HoloClean session.
@@ -13,7 +8,7 @@ hc = holoclean.HoloClean(
     pruning_topk=0.0,
     epochs=20,
     weight_decay=0.1,
-    threads=20,
+    threads=1,
     batch_size=1,
     verbose=True,
     timeout=3*60000,
@@ -34,9 +29,10 @@ hc.setup_domain()
 featurizers = [
     InitAttFeaturizer(),
     InitSimFeaturizer(),
-    OccurFeaturizer(),
+    OccurAttrFeaturizer(),
     FreqFeaturizer(),
-    ConstraintFeat()
+    ConstraintFeat(),
+    LangModelFeat()
 ]
 hc.repair_errors(featurizers)
 
