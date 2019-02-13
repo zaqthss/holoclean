@@ -32,7 +32,7 @@ featurizers = [
     OccurAttrFeaturizer(),
     FreqFeaturizer(),
     ConstraintFeat(),
-    LangModelFeat()
+    # LangModelFeat()
 ]
 hc.repair_errors(featurizers)
 

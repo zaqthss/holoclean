@@ -160,7 +160,7 @@ class DomainEngine:
             if attr in self.correlations:
                 d_temp = self.correlations[attr]
                 d_temp = d_temp.abs()
-                self._cor_attrs[(attr,thres)] = [rec[0] for rec in d_temp[d_temp > thres].iteritems() if rec[0] != attr]
+                self._cor_attrs[(attr,thres)] = sorted([rec[0] for rec in d_temp[d_temp > thres].iteritems() if rec[0] != attr])
         return self._cor_attrs[(attr,thres)]
 
     def generate_domain(self):

@@ -108,6 +108,7 @@ class RepairModel:
                         100. * np.mean(Y_assign == grdt))
 
     def infer_values(self, X_pred, mask_pred):
+        logging.info('inferring on %d examples (cells)', X_pred.shape[0])
         output = self.__predict__(X_pred, mask_pred)
         return output
 
