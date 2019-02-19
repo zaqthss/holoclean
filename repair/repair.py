@@ -3,9 +3,9 @@ import time
 
 import pandas as pd
 
-from .featurize import FeaturizedDataset
-from .learn import RepairModel
-from dataset import AuxTables
+from holoclean.dataset import AuxTables
+from holoclean.repair.featurize import FeaturizedDataset
+from holoclean.repair.learn import RepairModel
 
 
 class RepairEngine:

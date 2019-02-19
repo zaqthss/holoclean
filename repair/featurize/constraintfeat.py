@@ -4,9 +4,9 @@ from functools import partial
 import torch
 import torch.nn.functional as F
 
-from .featurizer import Featurizer
-from dataset import AuxTables
-from dcparser.constraint import is_symmetric
+from holoclean.dataset import AuxTables
+from holoclean.dcparser.constraint import is_symmetric
+from holoclean.repair.featurize.featurizer import Featurizer
 
 # unary_template is used for constraints where the current predicate
 # used for detecting violations in pos_values have a reference to only

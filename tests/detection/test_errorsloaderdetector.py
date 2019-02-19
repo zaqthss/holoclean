@@ -3,7 +3,7 @@ import csv
 import pytest
 from tempfile import NamedTemporaryFile
 
-from detect.errorloaderdetector import ErrorsLoaderDetector
+from holoclean.detect.errorloaderdetector import ErrorsLoaderDetector
 
 
 def test_errors_loader_valid_csv_file():

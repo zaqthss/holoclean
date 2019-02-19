@@ -2,7 +2,7 @@ import logging
 import os
 import time
 
-from .constraint import DenialConstraint
+from holoclean.dcparser.constraint import DenialConstraint
 
 
 class Parser:
@@ -23,7 +23,7 @@ class Parser:
     def load_denial_constraints(self, fpath):
         """
         Loads denial constraints from line-separated TXT file
-        
+
         :param fpath: filepath to TXT file containing denial constraints
         """
         tic = time.clock()

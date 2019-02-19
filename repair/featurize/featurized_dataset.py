@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 
-from dataset import AuxTables, CellStatus
+from holoclean.dataset import AuxTables, CellStatus
 
 FeatInfo = namedtuple('FeatInfo', ['name', 'size', 'learnable', 'init_weight', 'feature_names'])
 

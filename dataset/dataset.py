@@ -5,9 +5,9 @@ import time
 
 import pandas as pd
 
-from .dbengine import DBengine
-from .table import Table, Source
-from utils import dictify_df
+from holoclean.dataset.dbengine import DBengine
+from holoclean.dataset.table import Table, Source
+from holoclean.utils import dictify_df
 
 
 class AuxTables(Enum):

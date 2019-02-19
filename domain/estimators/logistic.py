@@ -1,7 +1,6 @@
 from abc import ABCMeta, abstractmethod
 import logging
 
-import pandas as pd
 import time
 import torch
 import torch.nn.functional as F
@@ -9,8 +8,7 @@ from torch.optim import Adam, SGD
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 
-from ..estimator import Estimator
-from utils import dictify_df
+from holoclean.domain.estimator import Estimator
 
 
 class Logistic(Estimator, torch.nn.Module):

@@ -1,6 +1,6 @@
-from detect import NullDetector, ViolationDetector
 import holoclean
-from repair.featurize import *
+from holoclean.detect import NullDetector, ViolationDetector
+from holoclean.repair.featurize import *
 
 TOL = 1e-9
 

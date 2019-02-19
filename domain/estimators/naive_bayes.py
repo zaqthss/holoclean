@@ -2,7 +2,7 @@ import math
 
 from tqdm import tqdm
 
-from ..estimator import Estimator
+from holoclean.domain.estimator import Estimator
 
 
 class NaiveBayes(Estimator):

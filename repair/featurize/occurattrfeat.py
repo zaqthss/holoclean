@@ -4,8 +4,8 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 
-from .featurizer import Featurizer
-from dataset import AuxTables
+from holoclean.dataset import AuxTables
+from holoclean.repair.featurize.featurizer import Featurizer
 
 
 class OccurAttrFeaturizer(Featurizer):

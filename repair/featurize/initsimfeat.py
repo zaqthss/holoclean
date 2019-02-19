@@ -3,8 +3,8 @@ from functools import partial
 import torch
 import Levenshtein
 
-from dataset import AuxTables
-from .featurizer import Featurizer
+from holoclean.dataset import AuxTables
+from holoclean.repair.featurize.featurizer import Featurizer
 
 
 def gen_feat_tensor(input, classes, total_attrs):

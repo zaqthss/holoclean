@@ -2,7 +2,7 @@ from string import Template
 
 import pandas as pd
 
-from .detector import Detector
+from holoclean.detect.detector import Detector
 
 unary_template = Template('SELECT t1._tid_ FROM "$table" as t1 WHERE $cond')
 multi_template = Template('SELECT t1._tid_ FROM "$table" as t1 WHERE $cond1 $c EXISTS (SELECT t2._tid_ FROM "$table" as t2 WHERE $cond2)')

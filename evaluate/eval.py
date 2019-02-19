@@ -6,8 +6,8 @@ import time
 
 import pandas as pd
 
-from dataset import AuxTables
-from dataset.table import Table, Source
+from holoclean.dataset import AuxTables
+from holoclean.dataset.table import Table, Source
 
 EvalReport = namedtuple('EvalReport', ['precision', 'recall', 'repair_recall',
     'f1', 'repair_f1', 'detected_errors', 'total_errors', 'correct_repairs',

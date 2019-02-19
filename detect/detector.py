@@ -12,7 +12,7 @@ class Detector:
     def __init__(self, name):
         """
         Construct error detection object
-        
+
         :param name: The name of the error detector
         """
         self.name = name

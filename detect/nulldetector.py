@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .detector import Detector
+from holoclean.detect.detector import Detector
 
 
 class NullDetector(Detector):
